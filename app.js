@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const cors = require('cors');
-// require("dotenv").config();
+require("dotenv").config();
 const mongodbUrl = process.env.mongodb_url;
 const port = 3200;
 
@@ -27,7 +27,8 @@ app.use('/api/user', userRoute);
 app.use('/api/product', productRoute);
 app.use('/api/product-category', productCategoryRoute);
 
-mongoose.connect('mongodb://localhost:27017/maxxcam')
+// mongoose.connect('mongodb://localhost:27017/maxxcam')
+mongoose.connect(mongodbUrl)
 .then(() => console.log('Database connected'))
 .catch(error => console.log(error));
 
