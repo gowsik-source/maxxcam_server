@@ -27,6 +27,10 @@ app.use('/api/user', userRoute);
 app.use('/api/product', productRoute);
 app.use('/api/product-category', productCategoryRoute);
 
+app.get('/', (req, res) => {
+    res.send("Backend is running");
+});
+
 // mongoose.connect('mongodb://localhost:27017/maxxcam')
 mongoose.connect(mongodbUrl)
 .then(() => console.log('Database connected'))
