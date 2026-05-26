@@ -19,7 +19,7 @@ userDal.emailExists = async (userEmail) => {
     try {
         let emailCheck = await userModel.findOne({email: userEmail});
         if (emailCheck) {
-            return {status: true, message: "Email already exists", data: emailCheck};
+            return {status: true, message: "Email found", data: emailCheck};
         }
         return {status: false, message: "Email does not exist", data: {}};
     } catch (error) {

@@ -27,7 +27,7 @@ userController.register = async (req, res) => {
     // create user data
     let result = await userDal.register(userData);
     if (result.status) {
-        return { code: 200, message: result.message, data: result.data };
+        return { code: 201, message: result.message, data: result.data };
     }
     } catch (error) {
         return { code: 500, message: error ? error.message : "server error", data: {} };
@@ -50,13 +50,13 @@ userController.login = async (req, res) => {
     let checkEmail = await userDal.emailExists(body?.email);
     // console.log("checkEmail", checkEmail.data);
     if (!checkEmail.status) {
-        return { code: 400, message: checkEmail.message, data: checkEmail.data };
+        return { code: 404, message: checkEmail.message, data: checkEmail.data };
     }
     // compare password
     let isPasswordValid = await bcrypt.compare(body?.password, checkEmail.data.password);
     console.log(isPasswordValid,'password check boolean')
     if (!isPasswordValid) {
-        return { code: 400, message: "Invalid password", data: {} };
+        return { code: 401, message: "Invalid password", data: {} };
     }
     return { code: 200, message: "Login successful", data: checkEmail.data };
     } catch (error) {
