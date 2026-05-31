@@ -16,6 +16,13 @@ productRoute.get('/all-products', async (req, res) => {
     res.status(result.code).send(result);
 });
 
+// display digital cameras products only
+
+productRoute.get('/digital-cameras', async (req, res) => {
+    let result = await productController.digitalCameras(req);
+    res.status(result.code).send(result);
+});
+
 // display lenses & accesories products only
 
 productRoute.get('/lenses-and-accessories', async (req, res) => {

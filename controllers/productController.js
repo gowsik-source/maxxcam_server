@@ -61,6 +61,28 @@ productController.allProducts = async (req, res) => {
     }
 }
 
+// display digital cameras category only
+
+productController.digitalCameras = async (req, res) => {
+    try {
+        let productCategory = await productCategoryModel.findOne({
+            lowerCasedCategoryName: "digital cameras",
+            deleted: false
+        });
+        let categoryProducts = await productModel.find({
+            categoryId: productCategory?._id,
+            deleted: false
+        });
+        // console.log(categoryProducts, "categoryProducts (array)");
+        if (categoryProducts.length) {
+            return { code: 200, message: "Lenses & Accessories products retrieved successfully", data: categoryProducts };
+        }
+        return { code: 404, message: "No products found in Lenses & Accessories category", data: [] };
+    } catch (error) {
+        return { code: 500, message: error ? error.message : "server error", data: {} };
+    }
+}
+
 // display lenses & accesories category only
 
 productController.lensesAndAccessories = async (req, res) => {
