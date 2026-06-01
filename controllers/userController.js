@@ -1,6 +1,7 @@
 const userRoute = require('../routes/userRoute');
 const userModel = require('../models/userModel');
 const userDal = require('../dal/userDal');
+const tokenHelper = require('../helper/tokenHelper');
 
 const bcrypt = require('bcrypt');
 const userController = new Object();
@@ -58,7 +59,11 @@ userController.login = async (req, res) => {
     if (!isPasswordValid) {
         return { code: 401, message: "Invalid password", data: {} };
     }
-    return { code: 200, message: "Login successful", data: checkEmail.data };
+    const generateToken = tokenHelper.generateToken(checkEmail.data._id)
+    if (generateToken) {
+        return { code: 200, message: "Login successful", data: checkEmail.data, token: generateToken };
+    }
+    return { code: 500, message: "Token generation failed", data: {}};
     } catch (error) {
         return { code: 500, message: error ? error.message : "server error", data: {} };
     }

@@ -8,6 +8,7 @@ require("dotenv").config();
 const mongodbUrl = process.env.mongodb_url;
 const port = 3200;
 
+const authMiddleware = require('./middleware/authMiddleware');
 const userRoute = require('./routes/userRoute');
 const productRoute = require('./routes/productRoute');
 const productCategoryRoute = require('./routes/productCategoryRoute');
@@ -18,6 +19,7 @@ const corsOptions = {
     OptionSuccessStatus:200
 };
 
+app.use(authMiddleware);
 app.use(express.json());
 app.use(bodyParser.json());
 app.use(morgan('dev'));
