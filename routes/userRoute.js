@@ -1,6 +1,6 @@
 const express = require('express');
 const userController = require('../controllers/userController');
-// const authMiddleware = require('../middleware/authMiddleware');
+const authMiddleware = require('../middleware/authMiddleware');
 const userRoute = express.Router();
 
 // register
@@ -16,8 +16,8 @@ userRoute.post('/login', async (req, res) => {
 });
 
 // tesing purpose
-userRoute.get('/test', async (req,res)=>{
-    return res.send("Token Valid");
+userRoute.get('/me', async (req,res)=>{
+    res.send(req.user);
 });
 
 module.exports = userRoute;
