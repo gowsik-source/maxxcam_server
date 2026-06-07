@@ -13,7 +13,15 @@ const authMiddleware = async (req, res, next) => {
             return next();
         }
 
-        if (req.method === "OPTIONS") {
+        // to ignore method = options from request
+        
+        // 1) React is sending a request with an Authorization header.
+        // 2) Browser sends a preflight OPTIONS request first.
+        // 3) Your JWT middleware is trying to validate the token on the OPTIONS request.
+        // 4) OPTIONS requests don't contain your JWT token.
+        // 5) Middleware returns 403.
+        // 6) Browser reports it as a CORS error.
+            if(req.method === "OPTIONS") {
             return next();
         }
 
