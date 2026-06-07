@@ -16,7 +16,9 @@ const productCategoryRoute = require('./routes/productCategoryRoute');
 const corsOptions = {
     origin:"*",
     credentials:true,
-    optionSuccessStatus:200
+    optionSuccessStatus:200,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 };
 
 app.use(authMiddleware);
