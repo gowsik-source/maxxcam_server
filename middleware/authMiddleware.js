@@ -13,6 +13,10 @@ const authMiddleware = async (req, res, next) => {
             return next();
         }
 
+        if (req.method === "OPTIONS") {
+            return next();
+        }
+
         //chcck header
         const authorization = req.headers.authorization;
         if (!authorization) {
@@ -38,7 +42,7 @@ const authMiddleware = async (req, res, next) => {
         next();
     } catch (error) {
         if (error.name === "TokenExpiredError") {
-            return res.status(401).json({ code: 401,status: false, message: "Token expired, please login again" });
+            return res.status(401).json({ code: 401, status: false, message: "Token expired, please login again" });
         }
         if (error.name === "JsonWebTokenError") {
             return res.status(403).json({ code: 403, status: false, message: "Invalid token" });
