@@ -21,7 +21,7 @@ userDal.emailExists = async (userEmail) => {
         if (emailCheck) {
             return {status: true, message: "Account already exists with this email. Please login.", data: emailCheck};
         }
-        return {status: false, message: "New email", data: {}};
+        return {status: false, message: "Email does not exist. Please check your email", data: {}};
     } catch (error) {
         return {status: false, message: error.message, data: {}};
     }

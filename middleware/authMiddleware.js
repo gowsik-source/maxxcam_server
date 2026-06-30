@@ -21,7 +21,7 @@ const authMiddleware = async (req, res, next) => {
         // 4) OPTIONS requests don't contain your JWT token.
         // 5) Middleware returns 403.
         // 6) Browser reports it as a CORS error.
-            if(req.method === "OPTIONS") {
+        if(req.method === "OPTIONS") {
             return next();
         }
 
