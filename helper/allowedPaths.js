@@ -1,3 +1,4 @@
+// testing purpose not used in production
 const allowedPaths = [
     '/api/user/login',
     '/api/user/register',

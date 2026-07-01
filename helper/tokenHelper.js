@@ -4,7 +4,7 @@ const tokenHelper = new Object();
 
 // generate token
 tokenHelper.generateToken = (id) => {
-    const generateToken = jwtToken.sign({id}, secretKey, { expiresIn: '7d' });
+    const generateToken = jwtToken.sign({id}, secretKey, { expiresIn: '1m' });
     return generateToken;
 };
 

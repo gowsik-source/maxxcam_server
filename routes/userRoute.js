@@ -16,7 +16,7 @@ userRoute.post('/login', async (req, res) => {
 });
 
 // fetch user details in jwt token
-userRoute.get('/me', async (req,res)=>{
+userRoute.get('/me', authMiddleware, async (req,res)=>{
     res.send(req.user);
 });
 

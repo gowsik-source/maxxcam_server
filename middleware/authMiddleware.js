@@ -1,17 +1,19 @@
 // const jwtToken = require('jsonwebtoken');
 const url = require('url');
-const allowedPaths = require('../helper/allowedPaths');
+// const allowedPaths = require('../helper/allowedPaths');
 const tokenHelper = require('../helper/tokenHelper');
 const userModel = require('../models/userModel');
 
 const authMiddleware = async (req, res, next) => {
     try {
-        // check path
-        const includedPaths = url.parse(req.originalUrl).pathname;
-        if (allowedPaths.includes(includedPaths)) {
-            console.log('allowed route detected');
-            return next();
-        }
+        // check path (not working in all cases so commented out for now)
+
+        // const includedPaths = url.parse(req.originalUrl).pathname;
+        // if (allowedPaths.includes(includedPaths)) {
+        //     console.log('allowed route detected');
+        //     return next();
+        // }
+        // --------------
 
         // to ignore method = options from request
         
