@@ -20,4 +20,10 @@ userRoute.get('/me', authMiddleware, async (req,res)=>{
     res.send(req.user);
 });
 
+//edit profile
+userRoute.put('/me/edit', authMiddleware, async (req,res)=>{
+    let result = await userController.editProfile(req);
+    res.status(result.code).send(result);
+});
+
 module.exports = userRoute;
