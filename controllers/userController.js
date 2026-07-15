@@ -87,24 +87,20 @@ userController.editProfile = async (req, res) => {
         //     }
         //     body['password'] = hashedPassword.data;
         // }
-        if (!body.firstName) {
-            return { code: 400, message: "First name is required", data: {} };
-        }
-        if (!body.email) {
-            return { code: 400, message: "Email is required", data: {} };
-        }
-        if (!body.contactNo) {
-            return { code: 400, message: "Contact number is required", data: {} };
-        }
+
         // check if email exists
-        let checkEmail = await userDal.emailExists(body.email);
-        if (checkEmail.status) {
-            return { code: 400, message: "Account already exists with this email.", data: {} };
+        if (body.email) {
+            let checkEmail = await userDal.emailExists(body.email);
+            if (checkEmail.status) {
+                return { code: 400, message: "Account already exists with this email.", data: {} };
+            }
         }
         // check if contactNo exists
-        let checkContactNo = await userDal.contactNoExists(body.contactNo);
-        if (checkContactNo.status) {
-            return { code: 400, message: checkContactNo.message, data: {} };
+        if (body.contactNo) {
+            let checkContactNo = await userDal.contactNoExists(body.contactNo);
+            if (checkContactNo.status) {
+                return { code: 400, message: checkContactNo.message, data: {} };
+            }
         }
         // update profile
         let updateProfile = await userModel.findByIdAndUpdate({ _id: userFromJwtToken?._id }, { $set: body });
