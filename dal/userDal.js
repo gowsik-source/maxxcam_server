@@ -43,10 +43,10 @@ userDal.contactNoExists = async (userContactNo) => {
 }
 
 // password hashing using bcrypt
-userDal.hashPassword = async (BodyPassword) => {
+userDal.hashPassword = async (bodyPassword) => {
     try {
         let salt = await bcrypt.genSalt(10);
-        let hashedPassword = await bcrypt.hash(BodyPassword, salt);
+        let hashedPassword = await bcrypt.hash(bodyPassword, salt);
         if (hashedPassword) {
             return { status: true, message: "Password hashed successfully", data: hashedPassword };
         }

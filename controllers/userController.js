@@ -69,25 +69,11 @@ userController.login = async (req, res) => {
 }
 
 // edit profile
-userController.editProfile = async (req, res) => {
+userController.editProfile = async (req) => {
     try {
         let userFromJwtToken = req?.user;
         console.log("userFromJwtToken", userFromJwtToken); //console
         let body = req?.body;
-        // compare password
-        // if (body?.password) {
-        //     let isPasswordValid = await userDal.comparePassword(body?.password, userFromJwtToken?.password);
-        //     if (isPasswordValid.status) {
-        //         return { code: 401, message: isPasswordValid.message, data: {} };
-        //     }
-        //     // hash password
-        //     let hashedPassword = await userDal.hashPassword(body?.password);
-        //     if (!hashedPassword.status) {
-        //         return { code: 500, message: hashedPassword.message, data: {} };
-        //     }
-        //     body['password'] = hashedPassword.data;
-        // }
-
         // check if email exists
         if (body.email) {
             let checkEmail = await userDal.emailExists(body.email);
@@ -105,12 +91,51 @@ userController.editProfile = async (req, res) => {
         // update profile
         let updateProfile = await userModel.findByIdAndUpdate({ _id: userFromJwtToken?._id }, { $set: body });
         if (updateProfile) {
-            return { code: 200, success: true, data: updateProfile, message: 'Profile updated successfully' };
+            return { code: 200, success: true, data: updateProfile.data, message: 'Profile updated successfully' };
         }
-        return res.status(400).json({ success: false, data: null, message: 'Profile update failed' });
+        return { code: 400, message: 'Profile update failed', data: {} };
     } catch (error) {
         return { code: 500, message: error ? error.message : "server error", data: {} };
     }
-}
+};
+
+// change password
+userController.changePassword = async (req) => {
+    try {
+        let userFromJwtToken = req?.user;
+        console.log("userFromJwtToken", userFromJwtToken); //console
+        let body = req?.body;
+        if (!body.oldPassword) {
+            return { code: 400, message: "Enter your old password", data: {} };
+        }
+        if (!body.newPassword) {
+            return { code: 400, message: "Enter your new password", data: {} };
+        }
+        // check old password
+        let checkOldPassword = await userDal.comparePassword(body?.oldPassword, userFromJwtToken?.password);
+        if (!checkOldPassword.status) {
+            return { code: 401, message: "Your old password is incorrect", data: {} };
+        }
+        // check new password
+        let checkNewPassword = await userDal.comparePassword(body?.newPassword, userFromJwtToken?.password);
+        if (checkNewPassword.status) {
+            return { code: 401, message: checkNewPassword.message, data: {} };
+        }
+        // hash password
+        let hashedPassword = await userDal.hashPassword(body.newPassword);
+        if (!hashedPassword.status) {
+            return { code: 500, message: "Something went wrong. Please try again", data: {} };
+        }
+        body['newPassword'] = hashedPassword.data;
+        // change password
+        let changePassword = await userModel.findByIdAndUpdate({ _id: userFromJwtToken._id }, { $set: { password: body.newPassword } }, {new: true});
+        if (changePassword) {
+            return { code: 200, success: true, data: hashedPassword.data, message: 'Password updated successfully' };
+        }
+        return { code: 400, message: 'Password update failed', data: {} };
+    } catch (error) {
+        return { code: 500, message: error ? error.message : "server error", data: {} };
+    }
+};
 
 module.exports = userController;

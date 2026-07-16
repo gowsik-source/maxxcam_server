@@ -26,4 +26,10 @@ userRoute.put('/me/edit', authMiddleware, async (req,res)=>{
     res.status(result.code).send(result);
 });
 
+//change password
+userRoute.put('/me/edit/change-password', authMiddleware, async (req,res)=>{
+    let result = await userController.changePassword(req);
+    res.status(result.code).send(result);
+});
+
 module.exports = userRoute;
