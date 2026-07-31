@@ -16,19 +16,31 @@ userRoute.post('/login', async (req, res) => {
 });
 
 // fetch user details in jwt token
-userRoute.get('/me', authMiddleware, async (req,res)=>{
+userRoute.get('/me', authMiddleware, async (req, res) => {
     res.send(req.user);
 });
 
 //edit profile
-userRoute.put('/me/edit', authMiddleware, async (req,res)=>{
+userRoute.put('/me/edit', authMiddleware, async (req, res) => {
     let result = await userController.editProfile(req);
     res.status(result.code).send(result);
 });
 
 //change password
-userRoute.put('/me/edit/change-password', authMiddleware, async (req,res)=>{
+userRoute.put('/me/edit/change-password', authMiddleware, async (req, res) => {
     let result = await userController.changePassword(req);
+    res.status(result.code).send(result);
+});
+
+//forgot password send mail
+userRoute.post('/me/edit/forgot-password', async (req, res) => {
+    let result = await userController.forgotPassword(req);
+    res.status(result.code).send(result);
+});
+
+//forgot password
+userRoute.put('/me/edit/reset-password/:passwordToken', async (req, res) => {
+    let result = await userController.resetPassword(req);
     res.status(result.code).send(result);
 });
 

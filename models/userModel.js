@@ -7,6 +7,7 @@ const userSchema = new Schema({
     contactNo : { type: String, default: '' },
     email : { type: String, default: '' },
     password : { type: String, default: '' },
+    jwtPasswordToken : { type: String, default: '' },
     status : { type: Boolean, default: false },
     deleted : { type: Boolean, default: false },
 }, { timestamps: true });

@@ -1,7 +1,8 @@
-const userRoute = require('../routes/userRoute');
 const userModel = require('../models/userModel');
 const userDal = require('../dal/userDal');
 const tokenHelper = require('../helper/tokenHelper');
+const mailHelper = require('../helper/mailHelper');
+const forgotPasswordMailTemplate = require('../templates/mail/forgotPassword');
 
 const userController = new Object();
 
@@ -128,12 +129,94 @@ userController.changePassword = async (req) => {
         }
         body['newPassword'] = hashedPassword.data;
         // change password
-        let changePassword = await userModel.findByIdAndUpdate({ _id: userFromJwtToken._id }, { $set: { password: body.newPassword } }, {new: true});
+        let changePassword = await userModel.findByIdAndUpdate({ _id: userFromJwtToken._id }, { $set: { password: body.newPassword } }, { new: true });
         if (changePassword) {
             return { code: 200, success: true, data: hashedPassword.data, message: 'Password updated successfully' };
         }
         return { code: 400, message: 'Password update failed', data: {} };
     } catch (error) {
+        return { code: 500, message: error ? error.message : "server error", data: {} };
+    }
+};
+
+// forgot password send mail
+userController.forgotPassword = async (req) => {
+    try {
+        let body = req?.body;
+        if (!body.email) {
+            return { code: 400, message: "Email is required", data: {} };
+        }
+        let user = await userDal.emailExists(body.email);
+        if (!user.status) {
+            return { code: 400, message: user.message, data: {} };
+        }
+        let tokenGenerated = await tokenHelper.generatePasswordToken(user.data._id)
+        console.log('tokenGenerated', tokenGenerated);
+        if (!tokenGenerated) {
+            return { code: 500, message: "Something went wrong. Please try again", data: {} };
+        }
+        // user.jwtPasswordToken = tokenGenerated;
+        // await user.save();
+        let saveJwtPasswordToken = await userModel.findByIdAndUpdate({ _id: user.data._id }, { $set: { jwtPasswordToken: tokenGenerated } })
+        if (saveJwtPasswordToken) {
+            console.log('password token saved');
+        }
+        // mail
+        let forgodPasswordTemplate = forgotPasswordMailTemplate(user.data.firstName, tokenGenerated);
+        let forgotPasswordMailSubject = "Reset Password";
+        let sendMail = await mailHelper(user.data.email, forgotPasswordMailSubject, forgodPasswordTemplate);
+        if (sendMail) {
+            console.log('mail sent successfully');
+        }
+        return { code: 200, success: true, data: {}, message: 'Email sent successfully' };
+    } catch (error) {
+        return { code: 500, message: error ? error.message : "server error", data: {} };
+    }
+};
+
+// forgot password
+userController.resetPassword = async (req) => {
+    try {
+        let body = req?.body;
+        let passwordToken = req?.params?.passwordToken;
+        if (!body.newPassword) {
+            return { code: 400, message: "New password is required", data: {} };
+        }
+        // check password token is found on database
+        let CheckDataBasePasswordToken = await userModel.findOne({ jwtPasswordToken: passwordToken });
+        if (!CheckDataBasePasswordToken) {
+            return { code: 404, message: "Link is expired", data: {} };
+        }
+        // check password token is expired
+        let passwordTokenIsValid = tokenHelper.verifyToken(passwordToken);
+        if (!passwordTokenIsValid) {
+            return { code: 400, message: "Link is expired", data: {} };
+        }
+        // hash the new password
+        let hashedPassword = await userDal.hashPassword(body.newPassword);
+        if (!hashedPassword.status) {
+            return { code: 500, message: "Something went wrong. Please try again", data: {} };
+        }
+        // set the hashed passwerd to the field value
+        body['newPassword'] = hashedPassword.data;
+        // update database fields
+        let query = {
+            password: body.newPassword,
+            jwtPasswordToken: null
+        };
+        let updatePassword = await userModel.findByIdAndUpdate({ _id: CheckDataBasePasswordToken._id }, { $set: query }, { new: true });
+        if (updatePassword) {
+            return { code: 200, status: true, message: "Password updated successfully", data: {} };
+        }
+        return { code: 400, message: "Password update failed. Please try again", data: {} };
+    } catch (error) {
+        // token verify errors
+        if (error.name === "TokenExpiredError") {
+            return { code: 401, status: false, message: "Link is expired" };
+        }
+        if (error.name === "JsonWebTokenError") {
+            return { code: 403, status: false, message: "Link is expired" };
+        }
         return { code: 500, message: error ? error.message : "server error", data: {} };
     }
 };
