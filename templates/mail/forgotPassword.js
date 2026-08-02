@@ -50,7 +50,7 @@ const forgotPassword = (firstName, passwordToken) => {
                     </tr>
                     <tr>
                         <td style="padding-top: 1rem;">
-                            <a href="${frontendBaseUrl}/forgot_password/${passwordToken}" style="text-decoration: none;
+                            <a href="${frontendBaseUrl}/profile/edit/reset_password/${passwordToken}" style="text-decoration: none;
                             background-color: orange;
                             color: black;
                             padding: 1rem 2rem;

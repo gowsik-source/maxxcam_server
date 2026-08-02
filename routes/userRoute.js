@@ -38,7 +38,7 @@ userRoute.post('/me/edit/forgot-password', async (req, res) => {
     res.status(result.code).send(result);
 });
 
-//forgot password
+//reset password
 userRoute.put('/me/edit/reset-password/:passwordToken', async (req, res) => {
     let result = await userController.resetPassword(req);
     res.status(result.code).send(result);
