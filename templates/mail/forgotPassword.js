@@ -68,7 +68,7 @@ const forgotPassword = (firstName, passwordToken) => {
                     </tr>
                     <tr>
                         <td style="padding-top: 0.5rem;">
-                            <a href="https://maxxcam-client.vercel.app/forgot_password/${passwordToken}" style="text-decoration: none !important;">https://maxxcam-client.vercel.app/reset_password/${passwordToken}</a>
+                            <a href="${frontendBaseUrl}/profile/edit/reset_password/${passwordToken}" style="text-decoration: none !important;">${frontendBaseUrl}/profile/edit/reset_password/${passwordToken}</a>
                         </td>
                     </tr>
                     <tr>
