@@ -32,6 +32,7 @@ const mailHelper = async (receiverEmail, subjectOfEmail, forgotPasswordTemplate)
             return { status: true, data: result, message: 'Email sent successfully' };
         }
     } catch (error) {
+        console.log("Mail Helper Error:", error);
         return { status: false, data: {}, message: error.message };
     }
     // transporter.sendMail(message)
