@@ -159,16 +159,17 @@ userController.forgotPassword = async (req) => {
         // await user.save();
         let saveJwtPasswordToken = await userModel.findByIdAndUpdate({ _id: user.data._id }, { $set: { jwtPasswordToken: tokenGenerated } })
         if (saveJwtPasswordToken) {
+            // mail
             console.log('password token saved');
+            let forgodPasswordTemplate = forgotPasswordMailTemplate(user.data.firstName, tokenGenerated);
+            let forgotPasswordMailSubject = "Reset Password";
+            let sendMail = await mailHelper(user.data.email, forgotPasswordMailSubject, forgodPasswordTemplate);
+            if (sendMail.status) {
+                return { code: 200, success: true, data: {}, message: sendMail.message };
+            }
+            return { code: 400, data: {}, message: "Something went wrong." };
         }
-        // mail
-        let forgodPasswordTemplate = forgotPasswordMailTemplate(user.data.firstName, tokenGenerated);
-        let forgotPasswordMailSubject = "Reset Password";
-        let sendMail = await mailHelper(user.data.email, forgotPasswordMailSubject, forgodPasswordTemplate);
-        if (sendMail) {
-            console.log('mail sent successfully');
-        }
-        return { code: 200, success: true, data: {}, message: 'Email sent successfully' };
+        return { code: 400, data: {}, message: "Something went wrong." };
     } catch (error) {
         return { code: 500, message: error ? error.message : "server error", data: {} };
     }

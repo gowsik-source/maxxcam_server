@@ -73,6 +73,11 @@ const forgotPassword = (firstName, passwordToken) => {
                     </tr>
                     <tr>
                         <td style="padding-top: 1rem;">
+                            <p>This link will only be valid for the next 24 hours.</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding-top: 1rem;">
                             <p>If you didn't request a password change, simply ignore this email</p>
                         </td>
                     </tr>
