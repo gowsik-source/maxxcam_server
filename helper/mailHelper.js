@@ -9,7 +9,9 @@ const senderAppPassword = process.env.sender_app_password;
 const mailHelper = async (receiverEmail, subjectOfEmail, forgotPasswordTemplate) => {
     try {
         let config = {
-            service: 'gmail',
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false,
             auth: {
                 user: senderEmailAddress,
                 pass: senderAppPassword
@@ -27,7 +29,7 @@ const mailHelper = async (receiverEmail, subjectOfEmail, forgotPasswordTemplate)
             html: `${forgotPasswordTemplate}`
         }
         let result = await transporter.sendMail(message);
-        console.log('result',result);
+        console.log('result', result);
         if (result.accepted.length > 0) {
             return { status: true, data: result, message: 'Email sent successfully' };
         }
