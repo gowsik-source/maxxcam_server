@@ -1,17 +1,17 @@
-const nodeMailer = require('nodemailer')
-// const mailHelper = new Object();
+const nodeMailer = require('nodemailer');
+const { Resend } = require('resend');
+const mailHelper = new Object();
 require('dotenv').config();
 
 const companyName = process.env.company_name;
 const senderEmailAddress = process.env.sender_email_address;
 const senderAppPassword = process.env.sender_app_password;
+const resendApiKey = process.env.resend_api_key;
 
-const mailHelper = async (receiverEmail, subjectOfEmail, forgotPasswordTemplate) => {
+mailHelper.nodeMailer = async (receiverEmail, subjectOfEmail, forgotPasswordTemplate) => {
     try {
         let config = {
-            host: "smtp.gmail.com",
-            port: 587,
-            secure: false,
+            service: 'gmail',
             auth: {
                 user: senderEmailAddress,
                 pass: senderAppPassword
@@ -29,7 +29,7 @@ const mailHelper = async (receiverEmail, subjectOfEmail, forgotPasswordTemplate)
             html: `${forgotPasswordTemplate}`
         }
         let result = await transporter.sendMail(message);
-        console.log('result', result);
+        console.log('result',result);
         if (result.accepted.length > 0) {
             return { status: true, data: result, message: 'Email sent successfully' };
         }
@@ -47,5 +47,22 @@ const mailHelper = async (receiverEmail, subjectOfEmail, forgotPasswordTemplate)
     //     console.log("failed",error)
     // }
 }
+
+mailHelper.resend = async (receiverEmail, subjectOfEmail, forgotPasswordTemplate) => {
+    try {
+        const resend = new Resend(resendApiKey);
+        const result = await resend.emails.send({
+            from: `${companyName} <onboarding@resend.dev>`,
+            to: `${receiverEmail}`,
+            subject: `${subjectOfEmail}`,
+            html: `${forgotPasswordTemplate}`
+        });
+        console.log('result',result);
+        return { status: true, data: result, message: 'Email sent successfully' };
+    } catch (error) {
+        console.log("Mail Helper Error:", error);
+        return { status: false, data: {}, message: error.message };
+    }
+};
 
 module.exports = mailHelper;

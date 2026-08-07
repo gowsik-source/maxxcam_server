@@ -163,7 +163,7 @@ userController.forgotPassword = async (req) => {
             console.log('password token saved');
             let forgodPasswordTemplate = forgotPasswordMailTemplate(user.data.firstName, tokenGenerated);
             let forgotPasswordMailSubject = "Reset Password";
-            let sendMail = await mailHelper(user.data.email, forgotPasswordMailSubject, forgodPasswordTemplate);
+            let sendMail = await mailHelper.resend(user.data.email, forgotPasswordMailSubject, forgodPasswordTemplate);
             if (sendMail.status) {
                 return { code: 200, success: true, data: {}, message: sendMail.message };
             }
