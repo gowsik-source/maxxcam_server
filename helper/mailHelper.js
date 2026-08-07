@@ -46,7 +46,7 @@ mailHelper.nodeMailer = async (receiverEmail, subjectOfEmail, forgotPasswordTemp
     // } catch (error) {
     //     console.log("failed",error)
     // }
-}
+};
 
 mailHelper.resend = async (receiverEmail, subjectOfEmail, forgotPasswordTemplate) => {
     try {
@@ -58,8 +58,10 @@ mailHelper.resend = async (receiverEmail, subjectOfEmail, forgotPasswordTemplate
             html: `${forgotPasswordTemplate}`
         });
         console.log('result',result);
-        return { status: true, data: result, message: 'Email sent successfully' };
-    } catch (error) {
+        if (result?.data?.id) {
+            return { status: true, data: result, message: 'Email sent successfully' };
+        }
+        } catch (error) {
         console.log("Mail Helper Error:", error);
         return { status: false, data: {}, message: error.message };
     }

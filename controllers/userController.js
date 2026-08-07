@@ -165,9 +165,9 @@ userController.forgotPassword = async (req) => {
             let forgotPasswordMailSubject = "Reset Password";
             let sendMail = await mailHelper.resend(user.data.email, forgotPasswordMailSubject, forgodPasswordTemplate);
             if (sendMail.status) {
-                return { code: 200, success: true, data: {}, message: sendMail.message };
+                return { code: 200, success: true, data: sendMail.data, message: sendMail.message };
             }
-            return { code: 400, data: {}, message: "Something went wrong." };
+            return { code: 403, data: {}, message: sendMail.message };
         }
         return { code: 400, data: {}, message: "Something went wrong." };
     } catch (error) {
