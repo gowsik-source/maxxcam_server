@@ -61,6 +61,7 @@ mailHelper.resend = async (receiverEmail, subjectOfEmail, forgotPasswordTemplate
         if (result?.data?.id) {
             return { status: true, data: result, message: 'Email sent successfully' };
         }
+        return { status: false, data: {}, message: result?.error?.message };
         } catch (error) {
         console.log("Mail Helper Error:", error);
         return { status: false, data: {}, message: error.message };
