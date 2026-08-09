@@ -38,6 +38,12 @@ userRoute.post('/me/edit/forgot-password', async (req, res) => {
     res.status(result.code).send(result);
 });
 
+//check Reset Password Link
+userRoute.post('/me/edit/reset-password/token/:passwordToken', async (req, res) => {
+    let result = await userController.checkResetPasswordLink(req);
+    res.status(result.code).send(result);
+});
+
 //reset password
 userRoute.put('/me/edit/reset-password/:passwordToken', async (req, res) => {
     let result = await userController.resetPassword(req);

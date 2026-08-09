@@ -175,7 +175,34 @@ userController.forgotPassword = async (req) => {
     }
 };
 
-// forgot password
+// check Reset Password Link
+userController.checkResetPasswordLink = async (req) => {
+    try {
+        let passwordToken = req?.params?.passwordToken;
+        // check password token is found on database
+        let CheckDataBasePasswordToken = await userModel.findOne({ jwtPasswordToken: passwordToken });
+        if (!CheckDataBasePasswordToken) {
+            return { code: 404, message: "Token not found", data: {} };
+        }
+        // check password token is expired
+        let passwordTokenIsValid = tokenHelper.verifyToken(passwordToken);
+        if (!passwordTokenIsValid) {
+            return { code: 401, message: "Link expired", data: {} };
+        }
+        return { code: 200, message: "Access granted", data: {} };
+    } catch (error) {
+        // token verify errors
+        if (error.name === "TokenExpiredError") {
+            return { code: 401, status: false, message: "Link expired" };
+        }
+        if (error.name === "JsonWebTokenError") {
+            return { code: 403, status: false, message: "Link expired" };
+        }
+        return { code: 500, message: error ? error.message : "server error", data: {} };
+    }
+};
+
+// reset password
 userController.resetPassword = async (req) => {
     try {
         let body = req?.body;
@@ -186,12 +213,12 @@ userController.resetPassword = async (req) => {
         // check password token is found on database
         let CheckDataBasePasswordToken = await userModel.findOne({ jwtPasswordToken: passwordToken });
         if (!CheckDataBasePasswordToken) {
-            return { code: 404, message: "Link is expired", data: {} };
+            return { code: 404, message: "Token not found", data: {} };
         }
         // check password token is expired
         let passwordTokenIsValid = tokenHelper.verifyToken(passwordToken);
         if (!passwordTokenIsValid) {
-            return { code: 400, message: "Link is expired", data: {} };
+            return { code: 401, message: "Link expired", data: {} };
         }
         // hash the new password
         let hashedPassword = await userDal.hashPassword(body.newPassword);
@@ -213,10 +240,10 @@ userController.resetPassword = async (req) => {
     } catch (error) {
         // token verify errors
         if (error.name === "TokenExpiredError") {
-            return { code: 401, status: false, message: "Link is expired" };
+            return { code: 401, status: false, message: "Link expired" };
         }
         if (error.name === "JsonWebTokenError") {
-            return { code: 403, status: false, message: "Link is expired" };
+            return { code: 403, status: false, message: "Link expired" };
         }
         return { code: 500, message: error ? error.message : "server error", data: {} };
     }
