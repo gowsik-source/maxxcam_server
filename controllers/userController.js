@@ -2,6 +2,7 @@ const userModel = require('../models/userModel');
 const userDal = require('../dal/userDal');
 const tokenHelper = require('../helper/tokenHelper');
 const mailHelper = require('../helper/mailHelper');
+const cloudinaryHelper = require('../helper/cloudinaryHelper');
 const forgotPasswordMailTemplate = require('../templates/mail/forgotPassword');
 
 const userController = new Object();
@@ -9,7 +10,41 @@ const userController = new Object();
 // register
 userController.register = async (req, res) => {
     try {
-        let userData = req?.body;
+        let userData = {
+            firstName: req?.body?.firstName,
+            lastName: req?.body?.lastName,
+            contactNo: req?.body?.contactNo,
+            email: req?.body?.email,
+            password: req?.body?.password
+        };
+        console.log('body data', userData);
+
+        let avatarFile = req?.file;
+        console.log('avatar file', avatarFile);
+        // required fields
+        if (!userData.firstName) {
+            return { code: 400, message: 'firstname is required', data: {} };
+        }
+        if (!userData.contactNo) {
+            return { code: 400, message: 'contact number is required', data: {} };
+        }
+        if (!userData.email) {
+            return { code: 400, message: 'email is required', data: {} };
+        }
+        if (!userData.password) {
+            return { code: 400, message: 'password is required', data: {} };
+        }
+        // avatar file handling
+        if (avatarFile) {
+            let destinationFolder = 'users/avatars';
+            let cloudinaryResult = await cloudinaryHelper.create(avatarFile?.buffer, destinationFolder);
+            console.log('cloudinary Result', cloudinaryResult);
+
+            userData.avatar = {
+                avatarUrl: cloudinaryResult.secure_url,
+                avatarPublicId: cloudinaryResult.public_id
+            };
+        }
         // check if email exists
         let checkEmail = await userDal.emailExists(userData?.email);
         if (checkEmail.status) {
@@ -31,6 +66,7 @@ userController.register = async (req, res) => {
         if (result.status) {
             return { code: 201, message: result.message, data: result.data };
         }
+        return { code: 500, message: result.message, data: {} };
     } catch (error) {
         return { code: 500, message: error ? error.message : "server error", data: {} };
     }
@@ -75,6 +111,38 @@ userController.editProfile = async (req) => {
         let userFromJwtToken = req?.user;
         console.log("userFromJwtToken", userFromJwtToken); //console
         let body = req?.body;
+        let avatarFile = req?.file;
+        console.log('avatar file', avatarFile);
+
+        if (avatarFile) {
+            let findUser = await userModel.findById(userFromJwtToken._id);
+            console.log('findUser :', findUser);
+
+            oldAvatarPublicId = findUser.avatar.avatarPublicId;
+            let cloudinaryResult = await cloudinaryHelper.update(avatarFile?.buffer, oldAvatarPublicId);
+            console.log('cloudinary Result', cloudinaryResult);
+
+            body.avatar = {
+                avatarUrl: cloudinaryResult.secure_url,
+                avatarPublicId: cloudinaryResult.public_id
+            }
+        } else if (body.avatarAction === "remove") {
+
+            // User wants to remove the existing avatar
+            const findUser = await userModel.findById(userFromJwtToken._id);
+
+            const oldAvatarPublicId = findUser.avatar?.avatarPublicId;
+
+            if (oldAvatarPublicId) {
+                const deleteImage = await cloudinaryHelper.delete(oldAvatarPublicId);
+                console.log("delete Image", deleteImage);
+            }
+
+            body.avatar = {
+                avatarUrl: null,
+                avatarPublicId: null
+            };
+        };
         // check if email exists
         if (body.email) {
             let checkEmail = await userDal.emailExists(body.email);
@@ -90,9 +158,9 @@ userController.editProfile = async (req) => {
             }
         }
         // update profile
-        let updateProfile = await userModel.findByIdAndUpdate({ _id: userFromJwtToken?._id }, { $set: body });
+        let updateProfile = await userModel.findByIdAndUpdate({ _id: userFromJwtToken?._id }, { $set: body }, { new: true });
         if (updateProfile) {
-            return { code: 200, success: true, data: updateProfile.data, message: 'Profile updated successfully' };
+            return { code: 200, success: true, data: updateProfile, message: 'Profile updated successfully' };
         }
         return { code: 400, message: 'Profile update failed', data: {} };
     } catch (error) {

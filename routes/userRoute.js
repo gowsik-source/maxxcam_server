@@ -1,10 +1,11 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const authMiddleware = require('../middleware/authMiddleware');
+const fileUploadMiddleware = require('../middleware/fileUploadMiddleware');
 const userRoute = express.Router();
 
 // register
-userRoute.post('/register', async (req, res) => {
+userRoute.post('/register', fileUploadMiddleware.single('avatar'), async (req, res) => {
     let result = await userController.register(req);
     res.status(result.code).send(result);
 });
@@ -21,7 +22,7 @@ userRoute.get('/me', authMiddleware, async (req, res) => {
 });
 
 //edit profile
-userRoute.put('/me/edit', authMiddleware, async (req, res) => {
+userRoute.put('/me/edit', authMiddleware, fileUploadMiddleware.single('avatar'), async (req, res) => {
     let result = await userController.editProfile(req);
     res.status(result.code).send(result);
 });

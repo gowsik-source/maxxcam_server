@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 const { Schema } = require('mongoose');
 
 const userSchema = new Schema({
+    avatar : {
+        avatarUrl : { type: String, default: '' },
+        avatarPublicId : { type: String, default: '' }
+    },
     firstName : { type: String, default: '' },
     lastName : { type: String, default: '' },
     contactNo : { type: String, default: '' },
